@@ -808,7 +808,7 @@ filebeat.inputs:
        # Source of container events. Available options: all, stdin, stderr.
        #stream: all
 
-       # Format of the container events. Available options: auto, cri, docker, json-file 
+       # Format of the container events. Available options: auto, cri, docker, json-file
        #format: auto
 
   ### Log rotation
@@ -818,7 +818,7 @@ filebeat.inputs:
   #rotation.external.strategy.copytruncate:
   # Regex that matches the rotated files.
   #  suffix_regex: \.\d$
-  # If the rotated filename suffix is a datetime, set it here. 
+  # If the rotated filename suffix is a datetime, set it here.
   #  dateformat: -20060102
 
   ### State options
@@ -2219,20 +2219,18 @@ output.elasticsearch:
 
 # ================================== Template ==================================
 
-# A template is used to set the mapping in Elasticsearch
-# By default template loading is enabled and the template is loaded.
-# These settings can be adjusted to load your own template or overwrite existing ones.
-
-# Set to false to disable template loading.
+# Elasticsearch 中使用模板来设置映射，默认启用模板加载，并加载模板。
+# 这些设置可以调整以加载您自己的模板或覆盖现有模板。
+# 设置为 false 以禁用模板加载。
 #setup.template.enabled: true
 
-# Select the kind of index template. From Elasticsearch 7.8, it is possible to
-# use component templates. Available options: legacy, component, index.
-# By default filebeat uses index templates.
+# 选择索引模板的类型。从 Elasticsearch 7.8 开始，可以使用组件模板。
+#  可用的选项: legacy, component, index.
+# filebeat 默认使用索引模版
 #setup.template.type: index
 
-# Template name. By default the template name is "filebeat-%{[agent.version]}"
-# The template name and pattern has to be set in case the Elasticsearch index pattern is modified.
+# 索引模版名称,默认索引模版名称是 "filebeat-%{[agent.version]}"
+# 必须设置索引模板名称(index template)和模式(index pattern)，以防 Elasticsearch 索引模式被修改。
 #setup.template.name: "filebeat-%{[agent.version]}"
 
 # Template pattern. By default the template pattern is "-%{[agent.version]}-*" to apply to the default index settings.
