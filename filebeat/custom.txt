@@ -1,0 +1,2 @@
+ilm: log-default-ilm-policy
+index-template: log-default-template

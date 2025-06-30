@@ -1,22 +1,15 @@
 ######################## Filebeat Configuration ############################
-
-# This file is a full configuration example documenting all non-deprecated
-# options in comments. For a shorter configuration example, that contains only
-# the most common options, please see filebeat.yml in the same directory.
+# 此文件是一个完整的配置示例，其中所有未弃用的选项均已在注释中列出。
+# 如需更简短的配置示例（仅包含最常用的选项），请参阅同一目录中的 filebeat.yml 文件。
 #
-# You can find the full configuration reference here:
-# https://www.elastic.co/guide/en/beats/filebeat/index.html
+# 您可以在此处找到完整的配置参考： https://www.elastic.co/guide/en/beats/filebeat/index.html
 
 
 #==========================  Modules configuration =============================
 filebeat.modules:
-
-#-------------------------------- System Module --------------------------------
-#- module: system
-  # Syslog
-  #syslog:
-    #enabled: true
-
+- module: system           # System Module
+  syslog:
+    enabled: true
     # Set custom paths for the log files. If left empty,
     # Filebeat will choose the paths depending on your OS.
     #var.paths:
@@ -42,6 +35,7 @@ filebeat.modules:
   # Access logs
   #access:
     #enabled: true
+
 
     # Set custom paths for the log files. If left empty,
     # Filebeat will choose the paths depending on your OS.
@@ -407,115 +401,109 @@ filebeat.modules:
 
 #=========================== Filebeat inputs =============================
 
-# List of inputs to fetch data.
+# 用于获取数据等输入列表
 filebeat.inputs:
-# Each - is an input. Most options can be set at the input level, so
-# you can use different inputs for various configurations.
-# Below are the input specific configurations.
-
-# Type of the files. Based on this the way the file is read is decided.
-# The different types cannot be mixed in one input
+# 每个 - 都代表一个输入。
+# 大多数选项都可以在输入级别设置，因此您可以针对不同的配置使用不同的输入。以下是特定于输入的配置。
+# 文件类型。文件读取方式将基于此决定。不同类型不能混合在一个输入中
 #
-# Possible options are:
-# * filestream: Reads every line of the log file
-# * log: Reads every line of the log file (deprecated)
-# * stdin: Reads the standard in
+# 可能的选择是:
+# * filestream: 读取日志文件的每一行
+# * log: 读取日志文件的每一行（已弃用）
+# * stdin: 读取标准输入
 
 #------------------------------ Log input --------------------------------
 - type: log
-
-  # Change to true to enable this input configuration.
+  # 更改为 true 以启用此输入配置。
   enabled: false
 
-  # Paths that should be crawled and fetched. Glob based paths.
-  # To fetch all ".log" files from a specific level of subdirectories
-  # /var/log/*/*.log can be used.
-  # For each file found under this path, a harvester is started.
-  # Make sure not file is defined twice as this can lead to unexpected behaviour.
+  # 需要抓取和抓取的路径。基于 Glob 的路径。
+  # 要从特定级别的子目录中获取所有“.log”文件，可以使用 /var/log/*/*.log。
+  # 对于在此路径下找到的每个文件，都会启动一个收割机(harvester)。
+  # 确保文件没有被定义两次，因为这可能会导致意外的行为。
   paths:
     - /var/log/*.log
     #- c:\programdata\elasticsearch\logs\*
 
-  # Configure the file encoding for reading files with international characters
-  # following the W3C recommendation for HTML5 (http://www.w3.org/TR/encoding).
-  # Some sample encodings:
+  # 按照 W3C 对 HTML5 的建议（http://www.w3.org/TR/encoding）配置文件编码，以读取具有国际字符的文件。
+  # 一些示例编码:
   #   plain, utf-8, utf-16be-bom, utf-16be, utf-16le, big5, gb18030, gbk,
   #    hz-gb-2312, euc-kr, euc-jp, iso-2022-jp, shift-jis, ...
   #encoding: plain
 
 
-  # Exclude lines. A list of regular expressions to match. It drops the lines that are
-  # matching any regular expression from the list. The include_lines is called before
-  # exclude_lines. By default, no lines are dropped.
+  # 排除行。
+  # 要匹配的正则表达式列表。它会删除与列表中任何正则表达式匹配的行。
+  # 包含行会在排除行之前调用。默认情况下，不会删除任何行。
   #exclude_lines: ['^DBG']
 
-  # Include lines. A list of regular expressions to match. It exports the lines that are
-  # matching any regular expression from the list. The include_lines is called before
-  # exclude_lines. By default, all the lines are exported.
+  # 包括行.
+  # 要匹配的正则表达式列表。它会导出与列表中任何正则表达式匹配的行。
+  # include_lines 在 exclude_lines 之前调用。
+  # 默认情况下，所有行都会被导出。
   #include_lines: ['^ERR', '^WARN']
 
-  # Exclude files. A list of regular expressions to match. Filebeat drops the files that
+  # 排除文件.
+  # A list of regular expressions to match. Filebeat drops the files that
   # are matching any regular expression from the list. By default, no files are dropped.
   #exclude_files: ['.gz$']
 
-  # Method to determine if two files are the same or not. By default
-  # the Beat considers two files the same if their inode and device id are the same.
+  # 判断两个文件是否相同的方法。
+  # 默认情况下，如果两个文件的 inode 和设备 ID 相同，Beat 会将其视为相同。
   #file_identity.native: ~
 
-  # Optional additional fields. These fields can be freely picked
-  # to add additional information to the crawled log files for filtering
+  # 可选附加字段。
+  # 您可以自由选择这些字段，以便向抓取的日志文件添加附加信息以供过滤
   #fields:
   #  level: debug
   #  review: 1
 
-  # Set to true to store the additional fields as top level fields instead
-  # of under the "fields" sub-dictionary. In case of name conflicts with the
-  # fields added by Filebeat itself, the custom fields overwrite the default
-  # fields.
+  # 设置为 true 可将附加字段存储为顶级字段，而不是存储在“fields”子字典中。
+  # 如果名称与 Filebeat 自身添加的字段冲突，则自定义字段将覆盖默认字段。
   #fields_under_root: false
 
-  # Set to true to publish fields with null values in events.
+  # 设置为 true 以在事件中发布具有空值的字段。
   #keep_null: false
 
-  # By default, all events contain `host.name`. This option can be set to true
-  # to disable the addition of this field to all events. The default value is
-  # false.
+  # 默认情况下，所有事件都包含“host.name”。
+  # 您可以将此选项设置为 true，以禁用向所有事件添加此字段。默认值为 false。
   #publisher_pipeline.disable_host: false
 
-  # Ignore files which were modified more then the defined timespan in the past.
-  # ignore_older is disabled by default, so no files are ignored by setting it to 0.
-  # Time strings like 2h (2 hours), 5m (5 minutes) can be used.
+  # 忽略过去修改时间超过定义时间跨度的文件。
+  # ignore_older 默认处于禁用状态，因此将其设置为 0 不会忽略任何文件。
+  # 可以使用 2h（2 小时）、5m（5 分钟）等时间字符串。
   #ignore_older: 0
 
-  # How often the input checks for new files in the paths that are specified
-  # for harvesting. Specify 1s to scan the directory as frequently as possible
-  # without causing Filebeat to scan too frequently. Default: 10s.
+  # 输入检查指定路径中新文件的频率。
+  # 指定 1 秒以尽可能频繁地扫描目录，而不会导致 Filebeat 扫描频率过高。默认值：10 秒。
   #scan_frequency: 10s
 
-  # Defines the buffer size every harvester uses when fetching the file
+  # 定义每个收集器在获取文件时使用的缓冲区大小
   #harvester_buffer_size: 16384
 
-  # Maximum number of bytes a single log event can have
-  # All bytes after max_bytes are discarded and not sent. The default is 10MB.
-  # This is especially useful for multiline log messages which can get large.
+  # 单个日志事件的最大字节数
+  # max_bytes 之后的所有字节都将被丢弃且不会发送。默认值为 10MB。
+  # 这对于可能很大的多行日志消息尤其有用。
   #max_bytes: 10485760
 
-  # Characters which separate the lines. Valid values: auto, line_feed, vertical_tab, form_feed,
-  # carriage_return, carriage_return_line_feed, next_line, line_separator, paragraph_separator,
-  # null_terminator
+  # 行分隔符。
+  # 有效值：
+  #     auto、line_feed、vertical_tab、form_feed、carriage_return、
+  #     carriage_return_line_feed、next_line、line_separator、
+  #     paragraph_separator、null_terminator
   #line_terminator: auto
 
-  ### Recursive glob configuration
+  ### 递归全局配置
 
-  # Expand "**" patterns into regular glob patterns.
+  # 将“**”模式扩展为常规的 glob 模式。
   #recursive_glob.enabled: true
 
   ### JSON configuration
 
-  # Decode JSON options. Enable this if your logs are structured in JSON.
-  # JSON key on which to apply the line filtering and multiline settings. This key
-  # must be top level and its value must be string, otherwise it is ignored. If
-  # no text key is defined, the line filtering and multiline features cannot be used.
+  # 解码 JSON 选项。如果您的日志采用 JSON 结构，请启用此选项。
+  # 要应用行过滤和多行设置的 JSON 键。
+  # 此键必须位于顶层，且其值必须是字符串，否则将被忽略。
+  # 如果未定义文本键，则无法使用行过滤和多行功能。
   #json.message_key:
 
   # By default, the decoded JSON is placed under a "json" key in the output document.
@@ -642,16 +630,14 @@ filebeat.inputs:
   # Note: Potential data loss. Make sure to read and understand the docs for this option.
   #close_timeout: 0
 
-  # Defines if inputs is enabled
+  # 定义输入是否启用
   #enabled: true
 
 #--------------------------- Filestream input ----------------------------
 - type: filestream
-
-  # Unique ID among all inputs, an ID is required.
+  # 所有输入中的唯一 ID，ID 是必需的。
   id: my-filestream-id
-
-  # Change to true to enable this input configuration.
+  # 更改为 true 以启用此输入配置。
   enabled: false
 
   # Paths that should be crawled and fetched. Glob based paths.
@@ -1145,19 +1131,17 @@ filebeat.inputs:
 
 # ================================== General ===================================
 
-# The name of the shipper that publishes the network data. It can be used to group
-# all the transactions sent by a single shipper in the web interface.
-# If this options is not defined, the hostname is used.
+# 发布网络数据的传输器名称。
+# 它可用于在 Web 界面中对单个传输器发送的所有事务进行分组。
+# 如果未定义此选项，则使用主机名。
 #name:
 
-# The tags of the shipper are included in their own field with each
-# transaction published. Tags make it easy to group servers by different
-# logical properties.
+# 每笔交易发布时，发货方的标签都会包含在其专属字段中。
+# 标签可以轻松地根据不同的逻辑属性对服务器进行分组。
 #tags: ["service-X", "web-tier"]
 
-# Optional fields that you can specify to add additional information to the
-# output. Fields can be scalar values, arrays, dictionaries, or any nested
-# combination of these.
+# 您可以指定可选字段，以向输出添加更多信息。
+# 字段可以是标量值、数组、字典或这些类型的任何嵌套组合。
 #fields:
 #  env: staging
 
@@ -1166,7 +1150,7 @@ filebeat.inputs:
 # sub-dictionary. Default is false.
 #fields_under_root: false
 
-# Internal queue configuration for buffering events to be published.
+# 用于缓冲要发布的事件的内部队列配置。
 #queue:
   # Queue type by name (default 'mem')
   # The memory queue will present all available events (up to the outputs
@@ -1464,58 +1448,30 @@ filebeat.inputs:
 
 # ================================== Outputs ===================================
 
-# Configure what output to use when sending the data collected by the beat.
+# 配置filebeat采集的数据的输出(目的)
 
 # ---------------------------- Elasticsearch Output ----------------------------
 output.elasticsearch:
-  # Boolean flag to enable or disable the output module.
-  #enabled: true
-
-  # Array of hosts to connect to.
-  # Scheme and port can be left out and will be set to the default (http and 9200)
-  # In case you specify and additional path, the scheme is required: http://localhost:9200/path
-  # IPv6 addresses should always be defined as: https://[2001:db8::1]:9200
-  hosts: ["localhost:9200"]
-
-  # Set gzip compression level. Set to 0 to disable compression.
-  # The default is 1.
-  #compression_level: 1
-
-  # Configure escaping HTML symbols in strings.
-  #escape_html: false
-
-  # Protocol - either `http` (default) or `https`.
-  #protocol: "https"
-
-  # Authentication credentials - either API key or username/password.
-  #api_key: "id:api_key"
+  #enabled: true              # 布尔标志用于启用或禁用输出模块。
+  hosts: ["localhost:9200"]   # 要连接的主机数组。
+  #compression_level: 1       # 设置 gzip 压缩级别。设置为 0 表示禁用压缩。默认值为 1。
+  #escape_html: false         # 配置字符串中的转义 HTML 符号。
+  #protocol: "https"          # Protocol - either `http` (default) or `https`.
+  #api_key: "id:api_key"      # 身份验证凭证 - API 密钥或用户名/密码。
   #username: "elastic"
   #password: "changeme"
-
-  # Dictionary of HTTP parameters to pass within the URL with index operations.
-  #parameters:
+  #parameters:                # 使用索引操作在 URL 中传递的 HTTP 参数字典。
     #param1: value1
     #param2: value2
-
-  # Number of workers per Elasticsearch host.
-  #worker: 1
-
-  # Optional index name. The default is "filebeat" plus date
-  # and generates [filebeat-]YYYY.MM.DD keys.
-  # In case you modify this pattern you must update setup.template.name and setup.template.pattern accordingly.
+  #worker: 1                  # 每个 Elasticsearch 主机的工作程序数量。
+  # 可选索引名称。默认为“filebeat”加上日期，并生成 [filebeat-]YYYY.MM.DD 键。
+  # 如果您修改此模式，则必须相应地更新setup.template.name和setup.template.pattern。
   #index: "filebeat-%{[agent.version]}-%{+yyyy.MM.dd}"
-
-  # Optional ingest pipeline. By default no pipeline will be used.
-  #pipeline: ""
-
-  # Optional HTTP path
-  #path: "/elasticsearch"
-
-  # Custom HTTP headers to add to each request
-  #headers:
+  #pipeline: ""               # 可选的采集管道。默认情况下不使用任何管道。
+  #path: "/elasticsearch"     # 可选的 HTTP 路径
+  #headers:                   # 添加到每个请求的自定义 HTTP 标头
   #  X-My-Header: Contents of the header
-
-  # Proxy server URL
+  # 代理服务器 URL
   #proxy_url: http://proxy:3128
 
   # Whether to disable proxy settings for outgoing connections. If true, this
@@ -2233,9 +2189,9 @@ output.elasticsearch:
 # 必须设置索引模板名称(index template)和模式(index pattern)，以防 Elasticsearch 索引模式被修改。
 #setup.template.name: "filebeat-%{[agent.version]}"
 
-# Template pattern. By default the template pattern is "-%{[agent.version]}-*" to apply to the default index settings.
-# The first part is the version of the beat and then -* is used to match all daily indices.
-# The template name and pattern has to be set in case the Elasticsearch index pattern is modified.
+# 模板模式。默认情况下，模板模式为“-%{[agent.version]}-*”，用于应用默认索引设置。
+# 第一部分是节拍的版本，然后使用 -* 匹配所有每日索引。
+# 如果 Elasticsearch 索引模式发生修改，则必须设置模板名称和模式。
 #setup.template.pattern: "filebeat-%{[agent.version]}-*"
 
 # Path to fields.yml file to generate the template
@@ -2278,25 +2234,22 @@ setup.template.settings:
 
 # ====================== Index Lifecycle Management (ILM) ======================
 
-# Configure index lifecycle management (ILM). These settings create a write
-# alias and add additional settings to the index template. When ILM is enabled,
-# output.elasticsearch.index is ignored, and the write alias is used to set the
+# 配置索引生命周期管理 (ILM)。
+# 这些设置会创建写入别名，并向索引模板添加其他设置。
+# 启用 ILM 后，output.elasticsearch.index 会被忽略，并使用写入别名来设置
 # index name.
 
-# Enable ILM support. Valid values are true, false, and auto. When set to auto
-# (the default), the Beat uses index lifecycle management when it connects to a
-# cluster that supports ILM; otherwise, it creates daily indices.
+# 启用 ILM 支持。有效值为 true、false 和 auto。
+# 设置为 auto（默认值）时，Beat 会在连接到支持 ILM 的集群时使用索引生命周期管理；否则，它会每日创建索引。
 #setup.ilm.enabled: auto
 
-# Set the prefix used in the index lifecycle write alias name. The default alias
-# name is 'filebeat-%{[agent.version]}'.
+# 设置索引生命周期写入别名中使用的前缀。默认别名是“filebeat-%{[agent.version]}”。
 #setup.ilm.rollover_alias: 'filebeat'
 
-# Set the rollover index pattern. The default is "%{now/d}-000001".
+# 设置滚动索引模式。默认值为“%{now/d}-000001”。
 #setup.ilm.pattern: "{now/d}-000001"
 
-# Set the lifecycle policy name. The default policy name is
-# 'beatname'.
+# 设置生命周期策略名称。默认策略名称为 'beatname'
 #setup.ilm.policy_name: "mypolicy"
 
 # The path to a JSON file that contains a lifecycle policy configuration. Used

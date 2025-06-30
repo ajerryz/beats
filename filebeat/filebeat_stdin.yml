@@ -1,54 +1,13 @@
-###################### Filebeat Configuration Example #########################
-
-# This file is an example configuration file highlighting only the most common
-# options. The filebeat.reference.yml file from the same directory contains all the
-# supported options with more comments. You can use it as a reference.
-#
-# You can find the full configuration reference here:
-# https://www.elastic.co/guide/en/beats/filebeat/index.html
-
-# For more available modules and options, please see the filebeat.reference.yml sample
-# configuration file.
-
 # ============================== Filebeat inputs ===============================
 
 filebeat.inputs:
-
-# Each - is an input. Most options can be set at the input level, so
-# you can use different inputs for various configurations.
-# Below are the input specific configurations.
-
-# filestream is an input for collecting log messages from files.
-- type: filestream
-
-  # Unique ID among all inputs, an ID is required.
-  id: my-filestream-id
-
-  # Change to true to enable this input configuration.
-  enabled: false
-
-  # Paths that should be crawled and fetched. Glob based paths.
-  paths:
-    - /var/log/*.log
-    #- c:\programdata\elasticsearch\logs\*
-
-  # Exclude lines. A list of regular expressions to match. It drops the lines that are
-  # matching any regular expression from the list.
-  #exclude_lines: ['^DBG']
-
-  # Include lines. A list of regular expressions to match. It exports the lines that are
-  # matching any regular expression from the list.
-  #include_lines: ['^ERR', '^WARN']
-
-  # Exclude files. A list of regular expressions to match. Filebeat drops the files that
-  # are matching any regular expression from the list. By default, no files are dropped.
-  #prospector.scanner.exclude_files: ['.gz$']
-
-  # Optional additional fields. These fields can be freely picked
-  # to add additional information to the crawled log files for filtering
-  #fields:
-  #  level: debug
-  #  review: 1
+- type: stdin
+  id: my-stdin-id
+  enabled: true
+  fields:
+    app: stdin_filebeat
+    env: test-env
+  encoding: "utf-8"
 
 # ============================== Filebeat modules ==============================
 
@@ -63,7 +22,13 @@ filebeat.config.modules:
   #reload.period: 10s
 
 # ======================= Elasticsearch template setting =======================
+setup.ilm.enabled: true
+setup.ilm.rollover_alias: "log-filebeat-std"
+setup.ilm.policy_name: "log-default-ilm-policy"
 
+setup.template.enabled: true
+setup.template.name: "log-default-template"
+setup.template.pattern: "demo_local_filebeat_stdin_-*"
 setup.template.settings:
   index.number_of_shards: 1
   #index.codec: best_compression
@@ -101,7 +66,8 @@ setup.template.settings:
 
 # Starting with Beats version 6.0.0, the dashboards are loaded via the Kibana API.
 # This requires a Kibana endpoint configuration.
-setup.kibana:
+#setup.kibana:
+#  host: "192.168.10.211:5601"
 
   # Kibana Host
   # Scheme and port can be left out and will be set to the default (http and 5601)
@@ -134,10 +100,11 @@ setup.kibana:
 # ---------------------------- Elasticsearch Output ----------------------------
 output.elasticsearch:
   # Array of hosts to connect to.
-  hosts: ["localhost:9200"]
+  hosts: ["192.168.10.211:9200"]
   protocol: "http"
   username: "elastic"
   password: "elastic"
+  index: "demo_local_filebeat_stdin-%{+yyyy.MM.dd}"
 
   # Protocol - either `http` (default) or `https`.
   #protocol: "https"
