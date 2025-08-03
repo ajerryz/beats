@@ -1,0 +1,210 @@
+filebeat.inputs:
+- type: filestream
+  id: my-filestream-id-demo1
+  enabled: true
+  paths:
+    - /Users/zn/project-go/beats/a_cqdxzn_tools/log-generator/logs/app*.log
+#  exclude_lines: ['^0']
+  #include_lines: ['^ERR', '^WARN']
+  #prospector.scanner.exclude_files: ['.gz$']
+  fields:
+    source: local-log-generator
+    source-code: golang
+
+# ============================== Filebeat modules ==============================
+
+filebeat.config.modules:
+  # Glob pattern for configuration loading
+  path: ${path.config}/modules.d/*.yml
+
+  # Set to true to enable config reloading
+  reload.enabled: false
+
+  # Period on which files under path should be checked for changes
+  #reload.period: 10s
+
+# ================================== Template ==================================
+setup.template.enabled: false
+setup.template.type: index
+setup.template.name: demo
+setup.template.pattern: demo-*
+setup.template.settings:
+  index:
+    number_of_shards: 1
+
+
+# Elasticsearch 中使用模板来设置映射，默认启用模板加载，并加载模板。
+# 这些设置可以调整以加载您自己的模板或覆盖现有模板。
+# 设置为 false 以禁用模板加载。
+#setup.template.enabled: true
+
+# 选择索引模板的类型。从 Elasticsearch 7.8 开始，可以使用组件模板。
+#  可用的选项: legacy, component, index.
+# filebeat 默认使用索引模版
+#setup.template.type: index
+
+# 索引模版名称,默认索引模版名称是 "filebeat-%{[agent.version]}"
+# 必须设置索引模板名称(index template)和模式(index pattern)，以防 Elasticsearch 索引模式被修改。
+#setup.template.name: "filebeat-%{[agent.version]}"
+
+# 模板模式。默认情况下，模板模式为“-%{[agent.version]}-*”，用于应用默认索引设置。
+# 第一部分是节拍的版本，然后使用 -* 匹配所有每日索引。
+# 如果 Elasticsearch 索引模式发生修改，则必须设置模板名称和模式。
+#setup.template.pattern: "filebeat-%{[agent.version]}-*"
+
+# Path to fields.yml file to generate the template
+#setup.template.fields: "${path.config}/fields.yml"
+
+# A list of fields to be added to the template and Kibana index pattern. Also
+# specify setup.template.overwrite: true to overwrite the existing template.
+#setup.template.append_fields:
+#- name: field_name
+#  type: field_type
+
+# Enable JSON template loading. If this is enabled, the fields.yml is ignored.
+#setup.template.json.enabled: false
+
+# Path to the JSON template file
+#setup.template.json.path: "${path.config}/template.json"
+
+# Name under which the template is stored in Elasticsearch
+#setup.template.json.name: ""
+
+# Overwrite existing template
+# Do not enable this option for more than one instance of filebeat as it might
+# overload your Elasticsearch with too many update requests.
+#setup.template.overwrite: false
+
+# Elasticsearch template settings
+#setup.template.settings:
+
+# A dictionary of settings to place into the settings.index dictionary
+# of the Elasticsearch template. For more details, please check
+# https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping.html
+#index:
+#number_of_shards: 1
+#codec: best_compression
+
+# A dictionary of settings for the _source field. For more details, please check
+# https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-source-field.html
+#_source:
+#enabled: false
+
+# ====================== Index Lifecycle Management (ILM) ======================
+setup.ilm.enabled: false
+setup.ilm.rollover_alias: 'demo'
+setup.ilm.pattern: "{now/d}-000001"
+#setup.ilm.policy_file:
+setup.ilm.policy_name: "ilp_100doc-rollover_7d-delete"
+setup.ilm.check_exists: true
+setup.ilm.overwrite: false
+
+# 配置索引生命周期管理 (ILM)。
+# 这些设置会创建写入别名，并向索引模板添加其他设置。
+# 启用 ILM 后，output.elasticsearch.index 会被忽略，并使用写入别名来设置索引名称
+
+# 启用 ILM 支持。有效值为 true、false 和 auto。
+# 设置为 auto（默认值）时，Beat 会在连接到支持 ILM 的集群时使用索引生命周期管理；否则，它会每日创建索引。
+#setup.ilm.enabled: auto
+
+# 设置索引生命周期写入别名中使用的前缀。默认别名是“filebeat-%{[agent.version]}”。
+#setup.ilm.rollover_alias: 'filebeat'
+
+# 设置滚动索引模式。默认值为“%{now/d}-000001”。
+#setup.ilm.pattern: "{now/d}-000001"
+
+# 设置生命周期策略名称。默认策略名称为 'beatname'
+#setup.ilm.policy_name: "mypolicy"
+
+# The path to a JSON file that contains a lifecycle policy configuration. Used
+# to load your own lifecycle policy.
+#setup.ilm.policy_file:
+
+# Disable the check for an existing lifecycle policy. The default is true.
+# If you set this option to false, lifecycle policy will not be installed,
+# even if setup.ilm.overwrite is set to true.
+#setup.ilm.check_exists: true
+
+# Overwrite the lifecycle policy at startup. The default is false.
+#setup.ilm.overwrite: false
+
+
+# ================================== General ===================================
+
+# The name of the shipper that publishes the network data. It can be used to group
+# all the transactions sent by a single shipper in the web interface.
+#name:
+
+# The tags of the shipper are included in their own field with each
+# transaction published.
+#tags: ["service-X", "web-tier"]
+
+# Optional fields that you can specify to add additional information to the
+# output.
+#fields:
+#  env: staging
+
+# ================================= Dashboards =================================
+# These settings control loading the sample dashboards to the Kibana index. Loading
+# the dashboards is disabled by default and can be enabled either by setting the
+# options here or by using the `setup` command.
+#setup.dashboards.enabled: false
+
+# The URL from where to download the dashboards archive. By default this URL
+# has a value which is computed based on the Beat name and version. For released
+# versions, this URL points to the dashboard archive on the artifacts.elastic.co
+# website.
+#setup.dashboards.url:
+
+# =================================== Kibana ===================================
+
+# Starting with Beats version 6.0.0, the dashboards are loaded via the Kibana API.
+# This requires a Kibana endpoint configuration.
+setup.kibana:
+
+  # Kibana Host
+  # Scheme and port can be left out and will be set to the default (http and 5601)
+  # In case you specify and additional path, the scheme is required: http://localhost:5601/path
+  # IPv6 addresses should always be defined as: https://[2001:db8::1]:5601
+  #host: "localhost:5601"
+
+  # Kibana Space ID
+  # ID of the Kibana Space into which the dashboards should be loaded. By default,
+  # the Default Space will be used.
+  #space.id:
+
+
+# ================================== Outputs ===================================
+
+# Configure what output to use when sending the data collected by the beat.
+
+# ---------------------------- Elasticsearch Output ----------------------------
+output.elasticsearch:
+  hosts: ["192.168.10.211:9200"]
+  protocol: "http"
+  username: "elastic"
+  password: "elastic"
+  index: demo
+
+
+# ================================= Processors =================================
+processors:
+  - add_host_metadata:
+      when.not.contains.tags: forwarded
+  - add_cloud_metadata: ~
+  - add_docker_metadata: ~
+  - add_kubernetes_metadata: ~
+
+# ================================== Logging ===================================
+logging.level: info
+
+# Sets log level. The default log level is info.
+# Available log levels are: error, warning, info, debug
+#logging.level: debug
+
+# At debug level, you can selectively enable logging only for some components.
+# To enable all selectors use ["*"]. Examples of other selectors are "beat",
+# "publisher", "service".
+#logging.selectors: ["*"]
+
+

@@ -1,0 +1,5 @@
+filbeat/filebeat
+filbeat/data
+filbeat/logs
+
+log-generator/logs
