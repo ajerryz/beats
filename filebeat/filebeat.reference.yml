@@ -36,7 +36,6 @@ filebeat.modules:
   #access:
     #enabled: true
 
-
     # Set custom paths for the log files. If left empty,
     # Filebeat will choose the paths depending on your OS.
     #var.paths:
@@ -645,6 +644,10 @@ filebeat.inputs:
   # /var/log/*/*.log can be used.
   # For each file found under this path, a harvester is started.
   # Make sure not file is defined twice as this can lead to unexpected behaviour.
+  #
+  # 需要抓取和获取的路径。基于 Glob 的路径。
+  # 例如:要从特定级别的子目录获取所有“.log”文件，可以使用 /var/log/*/*.log。
+  # 对于在此路径下找到的每个文件，都会启动一个收集器。请确保文件定义两次，否则可能导致意外行为。
   paths:
     - /var/log/*.log
     #- c:\programdata\elasticsearch\logs\*
@@ -654,39 +657,57 @@ filebeat.inputs:
   # Some sample encodings:
   #   plain, utf-8, utf-16be-bom, utf-16be, utf-16le, big5, gb18030, gbk,
   #    hz-gb-2312, euc-kr, euc-jp, iso-2022-jp, shift-jis, ...
+  #
+  # 配置文件编码，用于读取包含国际字符的文件。
+  # 遵循 W3C 推荐的 HTML5 规范（http://www.w3.org/TR/encoding）。
+  # 例如:utf-8、utf-16be、gbk、shift-jis 等。
   #encoding: plain
 
 
   # Exclude lines. A list of regular expressions to match. It drops the lines that are
   # matching any regular expression from the list. The include_lines is called before
   # exclude_lines. By default, no lines are dropped.
+  #
+  # 排除行。匹配任何正则表达式的行都会被删除。include_lines 会在 exclude_lines 之前调用。默认情况下，不会删除任何行。
   #exclude_lines: ['^DBG']
 
   # Include lines. A list of regular expressions to match. It exports the lines that are
   # matching any regular expression from the list. The include_lines is called before
   # exclude_lines. By default, all the lines are exported.
+  #
+  # 包含行。匹配任何正则表达式的行都会被导出。include_lines 会在 exclude_lines 之前调用。默认情况下，所有行都会被导出。
   #include_lines: ['^ERR', '^WARN']
 
-  ### Prospector options
+  ### Prospector options 收集器选项
 
   # How often the input checks for new files in the paths that are specified
   # for harvesting. Specify 1s to scan the directory as frequently as possible
   # without causing Filebeat to scan too frequently. Default: 10s.
+  #
+  # 收集器扫描间隔。指定 1s 以尽可能频繁地扫描目录，而不导致 Filebeat 扫描太频繁。默认值:10s。
   #prospector.scanner.check_interval: 10s
 
   # Exclude files. A list of regular expressions to match. Filebeat drops the files that
   # are matching any regular expression from the list. By default, no files are dropped.
+  #
+  # 排除文件。匹配任何正则表达式的文件都会被删除。默认情况下，不会删除任何文件。
   #prospector.scanner.exclude_files: ['.gz$']
 
   # Include files. A list of regular expressions to match. Filebeat keeps only the files that
   # are matching any regular expression from the list. By default, no files are dropped.
+  #
+  # 包含文件。匹配任何正则表达式的文件都会被保留。默认情况下，不会保留任何文件。
   #prospector.scanner.include_files: ['/var/log/.*']
 
   # Expand "**" patterns into regular glob patterns.
+  #
+  # 展开“**”模式为正则表达式模式。
   #prospector.scanner.recursive_glob: true
 
   # If symlinks is enabled, symlinks are opened and harvested. The harvester is opening the
   # original for harvesting but will report the symlink name as source.
+  #
+  # 启用 symlinks 时，会打开并收集符号链接。收集器会打开原始文件进行收集，但会将符号链接名称作为源报告。
   #prospector.scanner.symlinks: false
 
   # If enabled, instead of relying on the device ID and inode values when comparing files,
@@ -822,6 +843,8 @@ filebeat.inputs:
 
   # Optional additional fields. These fields can be freely picked
   # to add additional information to the crawled log files for filtering
+  #
+  #
   #fields:
   #  level: debug
   #  review: 1
@@ -1068,6 +1091,8 @@ filebeat.inputs:
 
 # Autodiscover allows you to detect changes in the system and spawn new modules
 # or inputs as they happen.
+#
+# 自动发现允许您检测系统中的变化并在发生变化时产生新的模块或输入。
 
 #filebeat.autodiscover:
   # List of enabled autodiscover providers
@@ -1082,20 +1107,44 @@ filebeat.inputs:
 #                - /var/lib/docker/containers/${data.docker.container.id}/*.log
 
 # ========================== Filebeat global options ===========================
+# === Filebeat 全局配置
+# filebeat.registry.path: ${path.data}/registry
+# filebeat.registry.file_permissions: 0600
+# filebeat.registry.flush: 0s
+# filebeat.registry.migrate_file: ${path.data}/registry
+# filebeat.overwrite_pipelines: false
+# filebeat.shutdown_timeout: 0
+#filebeat.config:
+  #inputs:
+    #enabled: false
+    #path: inputs.d/*.yml
+    #reload.enabled: true
+    #reload.period: 10s
+  #modules:
+    #enabled: true
+    #path: modules.d/*.yml
+    #reload.enabled: true
+    #reload.period: 10s
 
 # Registry data path. If a relative path is used, it is considered relative to the
 # data path.
+#
+# 注册表数据路径。如果使用相对路径，则视为相对于数据路径。
 #filebeat.registry.path: ${path.data}/registry
 
 # The permissions mask to apply on registry data, and meta files. The default
 # value is 0600.  Must be a valid Unix-style file permissions mask expressed in
 # octal notation.  This option is not supported on Windows.
+#
+# 注册表数据文件的权限掩码。默认值为 0600。必须是有效的 Unix 样式文件权限掩码，以八进制表示法表示。此选项在 Windows 上不支持。
 #filebeat.registry.file_permissions: 0600
 
 # The timeout value that controls when registry entries are written to disk
 # (flushed). When an unwritten update exceeds this value, it triggers a write
 # to disk. When flush is set to 0s, the registry is written to disk after each
 # batch of events has been published successfully. The default value is 0s.
+#
+# 控制注册表条目的刷新时间。当未写入的更新超过此值时，会触发写入。默认值为 0s。
 #filebeat.registry.flush: 0s
 
 
@@ -1104,18 +1153,26 @@ filebeat.inputs:
 # registry file to use the new directory format. If you changed
 # filebeat.registry.path while upgrading, set filebeat.registry.migrate_file to
 # point to the old registry file.
+#
+# 迁移旧的注册表文件。如果在升级时更改了 filebeat.registry.path，请将 filebeat.registry.migrate_file 设置为指向旧的注册表文件。
 #filebeat.registry.migrate_file: ${path.data}/registry
 
 # By default Ingest pipelines are not updated if a pipeline with the same ID
 # already exists. If this option is enabled Filebeat overwrites pipelines
 # everytime a new Elasticsearch connection is established.
+#
+# 每次建立新的 Elasticsearch 连接时，是否覆盖已存在的管道。默认值为 false。
 #filebeat.overwrite_pipelines: false
 
 # How long filebeat waits on shutdown for the publisher to finish.
 # Default is 0, not waiting.
+#
+# 关闭 Filebeat 时，等待发布者完成的时间。默认值为 0，不等待。
 #filebeat.shutdown_timeout: 0
 
 # Enable filebeat config reloading
+#
+# 启用 Filebeat 配置重新加载。默认值为 false。
 #filebeat.config:
   #inputs:
     #enabled: false
@@ -1130,32 +1187,52 @@ filebeat.inputs:
 
 
 # ================================== General ===================================
+# == 一般
+# name:
+# tags: ["service-X","web-tier"]
+# fields:
+#   env: staging
+#   region: us-east-1
+#fields_under_root: false
+
 
 # 发布网络数据的传输器名称。
 # 它可用于在 Web 界面中对单个传输器发送的所有事务进行分组。
 # 如果未定义此选项，则使用主机名。
 #name:
 
-# 每笔交易发布时，发货方的标签都会包含在其专属字段中。
-# 标签可以轻松地根据不同的逻辑属性对服务器进行分组。
+# The tags of the shipper are included in their own field with each
+# transaction published. Tags make it easy to group servers by different
+# logical properties.
+#
+# 发布者标签。可以用于在 Web 界面中对来自不同逻辑属性的服务器进行分组。
 #tags: ["service-X", "web-tier"]
 
-# 您可以指定可选字段，以向输出添加更多信息。
-# 字段可以是标量值、数组、字典或这些类型的任何嵌套组合。
+# Optional fields that you can specify to add additional information to the
+# output. Fields can be scalar values, arrays, dictionaries, or any nested
+# combination of these.
+#
+# 可选字段。可以指定要添加到输出中的额外信息。字段可以是标量值、数组、字典或任何这些的嵌套组合。
 #fields:
 #  env: staging
 
 # If this option is set to true, the custom fields are stored as top-level
 # fields in the output document instead of being grouped under a fields
 # sub-dictionary. Default is false.
+#
+# 自定义字段是否作为顶级字段存储在输出文档中，而不是分组在 fields 子字典中。默认值为 false。
 #fields_under_root: false
 
-# 用于缓冲要发布的事件的内部队列配置。
+# Internal queue configuration for buffering events to be published.
+#
+# 内部队列配置，用于缓冲要发布的事件。
 #queue:
   # Queue type by name (default 'mem')
   # The memory queue will present all available events (up to the outputs
   # bulk_max_size) to the output, the moment the output is ready to server
   # another batch of events.
+  #
+  # 内存队列配置，用于缓冲要发布的事件。
   #mem:
     # Max number of events the queue can buffer.
     #events: 4096
@@ -2175,30 +2252,66 @@ output.elasticsearch:
 
 # ================================== Template ==================================
 
-# Elasticsearch 中使用模板来设置映射，默认启用模板加载，并加载模板。
-# 这些设置可以调整以加载您自己的模板或覆盖现有模板。
-# 设置为 false 以禁用模板加载。
+# A template is used to set the mapping in Elasticsearch
+# By default template loading is enabled and the template is loaded.
+# These settings can be adjusted to load your own template or overwrite existing ones.
+#
+# Elasticsearch 中模板用于设置映射。默认情况下，模板加载处于启用状态，并且会加载模板。
+# 您可以调整这些设置，以加载您自己的模板或覆盖现有模板。
+#
+#setup.template.enabled: true
+#setup.template.type: index
+#setup.template.name: "filebeat-%{[agent.version]}"
+#setup.template.pattern: "filebeat-%{[agent.version]}-*"
+#setup.template.fields: "${path.config}/fields.yml"
+#setup.template.append_fields:
+#- name: field_name
+#  type: field_type
+#setup.template.json.name: ""
+#setup.template.settings:
+    #index:
+      #number_of_shards: 1
+      #codec: best_compression
+    #_source:
+      #enabled: false
+
+
+# Set to false to disable template loading.
+#
+# 设置为false禁用模版加载
 #setup.template.enabled: true
 
-# 选择索引模板的类型。从 Elasticsearch 7.8 开始，可以使用组件模板。
-#  可用的选项: legacy, component, index.
-# filebeat 默认使用索引模版
+# Select the kind of index template. From Elasticsearch 7.8, it is possible to
+# use component templates. Available options: legacy, component, index.
+# By default filebeat uses index templates.
+#
+# 选择索引模板的类型。从Elasticsearch 7.8开始，您可以使用组件模板。可用选项：legacy、component、index。
+# 默认情况下，filebeat使用索引模板。
 #setup.template.type: index
 
-# 索引模版名称,默认索引模版名称是 "filebeat-%{[agent.version]}"
-# 必须设置索引模板名称(index template)和模式(index pattern)，以防 Elasticsearch 索引模式被修改。
+# Template name. By default the template name is "filebeat-%{[agent.version]}"
+# The template name and pattern has to be set in case the Elasticsearch index pattern is modified.
+#
+# 模版名称。默认情况下，模版名称为“filebeat-%{[agent.version]}”
+# 模版名称和模式必须在Elasticsearch索引模式被修改的情况下设置。
 #setup.template.name: "filebeat-%{[agent.version]}"
 
-# 模板模式。默认情况下，模板模式为“-%{[agent.version]}-*”，用于应用默认索引设置。
-# 第一部分是节拍的版本，然后使用 -* 匹配所有每日索引。
-# 如果 Elasticsearch 索引模式发生修改，则必须设置模板名称和模式。
+# Template pattern. By default the template pattern is "-%{[agent.version]}-*" to apply to the default index settings.
+# The first part is the version of the beat and then -* is used to match all daily indices.
+# The template name and pattern has to be set in case the Elasticsearch index pattern is modified.
+#
+# 模版模式。默认情况下，模版模式为“-%{[agent.version]}-*”，以应用于默认索引设置。
 #setup.template.pattern: "filebeat-%{[agent.version]}-*"
 
 # Path to fields.yml file to generate the template
+#
+# 模版字段文件的路径
 #setup.template.fields: "${path.config}/fields.yml"
 
 # A list of fields to be added to the template and Kibana index pattern. Also
 # specify setup.template.overwrite: true to overwrite the existing template.
+#
+# 要添加到模板和Kibana索引模式的字段列表。还指定setup.template.overwrite：true以覆盖现有模板。
 #setup.template.append_fields:
 #- name: field_name
 #  type: field_type
@@ -2210,11 +2323,16 @@ output.elasticsearch:
 #setup.template.json.path: "${path.config}/template.json"
 
 # Name under which the template is stored in Elasticsearch
+#
+# 模版在Elasticsearch中存储的名称
 #setup.template.json.name: ""
 
 # Overwrite existing template
 # Do not enable this option for more than one instance of filebeat as it might
 # overload your Elasticsearch with too many update requests.
+#
+# 覆盖现有模板
+# 不要为filebeat的多个实例启用此选项，因为它可能会用太多的更新请求来重载您的Elasticsearch。
 #setup.template.overwrite: false
 
 # Elasticsearch template settings
@@ -2229,27 +2347,38 @@ setup.template.settings:
 
   # A dictionary of settings for the _source field. For more details, please check
   # https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-source-field.html
+  #
+  # 源字段的设置
   #_source:
     #enabled: false
 
 # ====================== Index Lifecycle Management (ILM) ======================
 
-# 配置索引生命周期管理 (ILM)。
-# 这些设置会创建写入别名，并向索引模板添加其他设置。
-# 启用 ILM 后，output.elasticsearch.index 会被忽略，并使用写入别名来设置
+# Configure index lifecycle management (ILM). These settings create a write
+# alias and add additional settings to the index template. When ILM is enabled,
+# output.elasticsearch.index is ignored, and the write alias is used to set the
 # index name.
+#
+# 配置索引生命周期管理（ILM）。这些设置创建一个写别名，并向索引模板添加额外的设置。当启用ILM时，
+# output.elasticsearch.index被忽略，并且使用写别名来设置索引名称。
 
-# 启用 ILM 支持。有效值为 true、false 和 auto。
-# 设置为 auto（默认值）时，Beat 会在连接到支持 ILM 的集群时使用索引生命周期管理；否则，它会每日创建索引。
+# Enable ILM support. Valid values are true, false, and auto. When set to auto
+# (the default), the Beat uses index lifecycle management when it connects to a
+# cluster that supports ILM; otherwise, it creates daily indices.
+#
+# 启用ILM支持。有效选项为true、false和auto。
+# 当设置为auto（默认值）时，当连接到支持ILM的集群时，Beat会使用索引生命周期管理；否则，它会创建每日索引。
 #setup.ilm.enabled: auto
 
-# 设置索引生命周期写入别名中使用的前缀。默认别名是“filebeat-%{[agent.version]}”。
+# Set the prefix used in the index lifecycle write alias name. The default alias
+# name is 'filebeat-%{[agent.version]}'.
 #setup.ilm.rollover_alias: 'filebeat'
 
-# 设置滚动索引模式。默认值为“%{now/d}-000001”。
+# Set the rollover index pattern. The default is "%{now/d}-000001".
 #setup.ilm.pattern: "{now/d}-000001"
 
-# 设置生命周期策略名称。默认策略名称为 'beatname'
+# Set the lifecycle policy name. The default policy name is
+# 'beatname'.
 #setup.ilm.policy_name: "mypolicy"
 
 # The path to a JSON file that contains a lifecycle policy configuration. Used
