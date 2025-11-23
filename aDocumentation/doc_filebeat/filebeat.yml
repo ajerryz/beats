@@ -1,0 +1,13 @@
+filebeat.inputs:
+  - type: filestream
+    id: custom-filestream-id
+    enabled: true
+    paths:
+      - /var/log/*.log
+    encoding: utf-8
+    exclude_lines: ['^DBG']
+    include_lines: ['^ERR','^WARN']
+    prospector.scanner.check_internal: 10s
+    prospector.scanner.exclude_files: ['.gz$']
+    #prospector.scanner.include_files: ['/var/log/.*']
+    #prospector.scanner.recursive_glob: true
