@@ -1,0 +1,177 @@
+filebeat.inputs:
+- type: filestream
+  id: apilog-mock
+  enabled: true
+  paths:
+    - /Users/zn/project-go/beats/aDocumentation/tools/apilog/logs/*.log
+    #- c:\programdata\elasticsearch\logs\*
+
+  # Exclude lines. A list of regular expressions to match. It drops the lines that are
+  # matching any regular expression from the list.
+  #exclude_lines: ['^DBG']
+
+  # Include lines. A list of regular expressions to match. It exports the lines that are
+  # matching any regular expression from the list.
+  #include_lines: ['^ERR', '^WARN']
+
+  # Exclude files. A list of regular expressions to match. Filebeat drops the files that
+  # are matching any regular expression from the list. By default, no files are dropped.
+  #prospector.scanner.exclude_files: ['.gz$']
+
+  # Optional additional fields. These fields can be freely picked
+  # to add additional information to the crawled log files for filtering
+  #fields:
+  #  level: debug
+  #  review: 1
+
+# ============================== Filebeat modules ==============================
+
+filebeat.config.modules:
+  # Glob pattern for configuration loading
+  path: ${path.config}/modules.d/*.yml
+
+  # Set to true to enable config reloading
+  reload.enabled: false
+
+  # Period on which files under path should be checked for changes
+  #reload.period: 10s
+
+
+# ====================== Index Lifecycle Management (ILM) ======================
+setup.ilm.enabled: false
+
+
+#
+# 配置索引生命周期管理（ILM）。这些设置创建一个写别名，并向索引模板添加额外的设置。当启用ILM时，
+# output.elasticsearch.index被忽略，并且使用写别名来设置索引名称。
+
+
+# 启用ILM支持。有效选项为true、false和auto。
+# 当设置为auto（默认值）时，当连接到支持ILM的集群时，Beat会使用索引生命周期管理；否则，它会创建每日索引。
+#setup.ilm.enabled: auto
+
+# Set the prefix used in the index lifecycle write alias name. The default alias
+# name is 'filebeat-%{[agent.version]}'.
+#setup.ilm.rollover_alias: 'filebeat'
+
+# Set the rollover index pattern. The default is "%{now/d}-000001".
+#setup.ilm.pattern: "{now/d}-000001"
+
+# Set the lifecycle policy name. The default policy name is
+# 'beatname'.
+#setup.ilm.policy_name: "mypolicy"
+
+# The path to a JSON file that contains a lifecycle policy configuration. Used
+# to load your own lifecycle policy.
+#setup.ilm.policy_file:
+
+# Disable the check for an existing lifecycle policy. The default is true.
+# If you set this option to false, lifecycle policy will not be installed,
+# even if setup.ilm.overwrite is set to true.
+#setup.ilm.check_exists: true
+
+# Overwrite the lifecycle policy at startup. The default is false.
+#setup.ilm.overwrite: false
+
+
+# ======================= Elasticsearch template setting =======================
+
+setup.template.enabled: false # 当使用自定义配置时使用
+setup.template.settings:
+  index.number_of_shards: 1
+  #index.codec: best_compression
+  #_source.enabled: false
+
+
+
+# ================================== General ===================================
+
+# The name of the shipper that publishes the network data. It can be used to group
+# all the transactions sent by a single shipper in the web interface.
+#name:
+
+# The tags of the shipper are included in their own field with each
+# transaction published.
+#tags: ["service-X", "web-tier"]
+
+# Optional fields that you can specify to add additional information to the
+# output.
+#fields:
+#  env: staging
+
+# ================================= Dashboards =================================
+# These settings control loading the sample dashboards to the Kibana index. Loading
+# the dashboards is disabled by default and can be enabled either by setting the
+# options here or by using the `setup` command.
+#setup.dashboards.enabled: false
+
+# The URL from where to download the dashboards archive. By default this URL
+# has a value which is computed based on the Beat name and version. For released
+# versions, this URL points to the dashboard archive on the artifacts.elastic.co
+# website.
+#setup.dashboards.url:
+
+# =================================== Kibana ===================================
+
+# Starting with Beats version 6.0.0, the dashboards are loaded via the Kibana API.
+# This requires a Kibana endpoint configuration.
+setup.kibana:
+
+  # Kibana Host
+  # Scheme and port can be left out and will be set to the default (http and 5601)
+  # In case you specify and additional path, the scheme is required: http://localhost:5601/path
+  # IPv6 addresses should always be defined as: https://[2001:db8::1]:5601
+  #host: "localhost:5601"
+
+  # Kibana Space ID
+  # ID of the Kibana Space into which the dashboards should be loaded. By default,
+  # the Default Space will be used.
+  #space.id:
+
+
+
+# ---------------------------- Elasticsearch Output ----------------------------
+output.elasticsearch:
+  # Array of hosts to connect to.
+  hosts: ["192.168.10.211:9200"]
+  protocol: "http"
+  username: "elastic"
+  password: "elastic"
+  index: "api-log-mock-logs"
+
+  # Protocol - either `http` (default) or `https`.
+  #protocol: "https"
+
+  # Authentication credentials - either API key or username/password.
+  #api_key: "id:api_key"
+  #username: "elastic"
+  #password: "changeme"
+
+# ================================= Processors =================================
+processors:
+  - decode_json_fields:   # 将原始JSON格式日志，解析为doc的字段
+      fields: ["message"]
+      target: ""
+      overwrite_keys: true
+      add_error_key: true
+  - timestamp:
+      field: time
+      layouts:
+        - '2006-01-02T15:04:05Z'
+      timezone: UTC
+  - add_host_metadata:
+      when.not.contains.tags: forwarded
+  - add_cloud_metadata: ~
+  - add_docker_metadata: ~
+  - add_kubernetes_metadata: ~
+
+# ================================== Logging ===================================
+
+# Sets log level. The default log level is info.
+# Available log levels are: error, warning, info, debug
+logging.level: info
+
+# At debug level, you can selectively enable logging only for some components.
+# To enable all selectors use ["*"]. Examples of other selectors are "beat",
+# "publisher", "service".
+#logging.selectors: ["*"]
